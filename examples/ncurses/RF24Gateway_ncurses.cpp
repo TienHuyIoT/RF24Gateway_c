@@ -46,7 +46,7 @@
 
 /******************************************************************/
 
-RF24 radio(22,0);
+RF24 radio;
 RF24Network network(radio);
 RF24Mesh mesh(radio,network);
 RF24Gateway gw(radio,network,mesh);
@@ -92,6 +92,7 @@ WINDOW * renewPad;
 
 int main() {	
   
+  RF24_init(&radio,22,0);
   gw.begin();
   mesh.setStaticAddress(8,1);
   
@@ -148,12 +149,12 @@ bool ok = true;
         wclear(renewPad);
         mvwprintw(renewPad,0,0,"*Renewing Address*");
         prefresh(renewPad,0,0, 3,26, 4, 55);
-        radio.maskIRQ(1,1,1); //Use polling only for address renewal       
+        RF24_maskIRQ(&radio,1,1,1); //Use polling only for address renewal       
         if( (ok = mesh.renewAddress()) ){
             wclear(renewPad);
             prefresh(renewPad,0,0, 3,26, 3, 55);
         }
-        radio.maskIRQ(1,1,0);
+        RF24_maskIRQ(&radio,1,1,0);
      }
   } 
   if(ok){
@@ -457,9 +458,9 @@ void drawRF24Pad(){
    mvwprintw(rf24Pad,1,0,"Address: 0%o\n",mesh.mesh_address);
    wprintw(rf24Pad,"nodeID: %d\n",mesh.getNodeID());
    wprintw(rf24Pad,"En Mesh: %s\n", gw.meshEnabled() ? "True" : "False");
-   int dr = radio.getDataRate();
+   int dr = RF24_getDataRate(&radio);
    wprintw(rf24Pad,"Data-Rate: %s\n", dr == 0 ? "1MBPS" : dr == 1 ? "2MBPS" : dr == 2 ? "250KBPS" : "ERROR" ); 
-   int pa = radio.getPALevel();
+   int pa = RF24_getPALevel(&radio);
    wprintw(rf24Pad,"PA Level: %s\n", pa == 0 ? "MIN" : pa == 1 ? "LOW" : pa == 2 ? "HIGH" : pa == 3 ? "MAX" : "ERROR" );
    wprintw(rf24Pad,"IF Type: %s\n", gw.config_TUN == 1 ? "TUN" : "TAP" );
    wprintw(rf24Pad,"IF Drops: %u\n", gw.ifDropped() );

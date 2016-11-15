@@ -64,11 +64,11 @@ bool RF24Gateway::begin(bool configTUN, bool meshEnable, uint16_t address, uint8
 	  mesh.begin(channel,data_rate);
 	  thisNodeAddress = mesh.mesh_address;
 	}else{
-	  radio.begin();
+	  RF24_begin(&radio);
       delay(5);
       const uint16_t this_node = address;
-	  radio.setDataRate(dataRate);
-	  radio.setChannel(channel);
+	  RF24_setDataRate(&radio,dataRate);
+	  RF24_setChannel(&radio,channel);
 	  
       network.begin(/*node address*/ this_node);
 	  thisNodeAddress = this_node;
@@ -78,7 +78,7 @@ bool RF24Gateway::begin(bool configTUN, bool meshEnable, uint16_t address, uint8
 
 
     //#if (DEBUG >= 1)
-        radio.printDetails();
+        RF24_printDetails(&radio);
     //#endif
     
     setupSocket();
@@ -263,7 +263,7 @@ void RF24Gateway::poll(uint32_t waitDelay){
     handleRX(waitDelay);
     rfNoInterrupts();
     //gateway.poll() is called manually when using interrupts, so if the radio RX buffer is full, or interrupts have been missed, check for it here.
-    if(radio.rxFifoFull()){
+    if(RF24_rxFifoFull(&radio)){
       fifoCleared=true;
       update(true); //Clear the radio RX buffer & interrupt flags before relying on interrupts
     }
@@ -312,7 +312,7 @@ void RF24Gateway::handleRadioIn(){
                 rxQueue.push(msg);
 
             } else {
-                //std::cerr << "Radio: Error reading data from radio. Read '" << bytesRead << "' Bytes." << std::endl;
+                //std::cerr << "Radio: Error reading data from RF24_ Read '" << bytesRead << "' Bytes." << std::endl;
             }
 			network.external_queue.pop();
 			

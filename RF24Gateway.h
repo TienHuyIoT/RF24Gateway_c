@@ -36,7 +36,7 @@
 
 #define BACKLOG     10  /* Passed to listen() */
   
-  class RF24;
+  //class RF24;
   class RF24Network;
   class RF24Mesh;
   
