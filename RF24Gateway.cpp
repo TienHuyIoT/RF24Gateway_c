@@ -70,7 +70,7 @@ bool RF24Gateway::begin(bool configTUN, bool meshEnable, uint16_t address, uint8
 	  RF24_setDataRate(&radio,dataRate);
 	  RF24_setChannel(&radio,channel);
 	  
-      network.begin(/*node address*/ this_node);
+          RF24N_begin(&network,/*node address*/ this_node);
 	  thisNodeAddress = this_node;
 	  
 	}
@@ -280,7 +280,7 @@ void RF24Gateway::handleRadioIn(){
             mesh.DHCP();
     }
     }else{
-        while(network.update());
+        while(RF24N_update(&network));
     }
        
     RF24NetworkFrame f;
@@ -358,27 +358,29 @@ void RF24Gateway::handleRadioOut(){
 
 			if(macData.rf24_Verification == RF24_STR){
 				const uint16_t other_node = macData.rf24_Addr;			
-				RF24NetworkHeader header(/*to node*/ other_node, EXTERNAL_DATA_TYPE);
-				ok = network.write(header,&msgTx->message,msgTx->size);
+				RF24NetworkHeader header;
+				RF24NH_init(&header,/*to node*/ other_node, EXTERNAL_DATA_TYPE);
+				ok = RF24N_write_m(&network,&header,&msgTx->message,msgTx->size);
 
 			}else
 			if(macData.rf24_Verification == ARP_BC){
-				RF24NetworkHeader header(/*to node*/ 00, EXTERNAL_DATA_TYPE); //Set to master node, will be modified by RF24Network if multi-casting
+				RF24NetworkHeader header;
+				RF24NH_init(&header,/*to node*/ 00, EXTERNAL_DATA_TYPE); //Set to master node, will be modified by RF24Network if multi-casting
 			  if(msgTx->size <= 42){	
 				if(thisNodeAddress == 00){ //Master Node
 				
 				    uint32_t arp_timeout = millis();
 					
-					ok=network.multicast(header,&msgTx->message,msgTx->size,1 ); //Send to Level 1
-					while(millis() - arp_timeout < 5){network.update();}
-					network.multicast(header,&msgTx->message,msgTx->size,1 ); //Send to Level 1					
+					ok=RF24N_multicast(&network,&header,&msgTx->message,msgTx->size,1 ); //Send to Level 1
+					while(millis() - arp_timeout < 5){RF24N_update(&network);}
+					RF24N_multicast(&network,&header,&msgTx->message,msgTx->size,1 ); //Send to Level 1					
 					arp_timeout=millis();
-					while(millis()- arp_timeout < 15){network.update();}
-					network.multicast(header,&msgTx->message,msgTx->size,1 ); //Send to Level 1					
+					while(millis()- arp_timeout < 15){RF24N_update(&network);}
+					RF24N_multicast(&network,&header,&msgTx->message,msgTx->size,1 ); //Send to Level 1					
 
 				}else{
 
-					ok = network.write(header,&msgTx->message,msgTx->size);					
+					ok = RF24N_write_m(&network,&header,&msgTx->message,msgTx->size);					
 				}
 			  }
 			}
@@ -388,11 +390,12 @@ void RF24Gateway::handleRadioOut(){
 			   uint16_t meshAddr;
 
 			  if ( (meshAddr = mesh.getAddress(lastOctet)) > 0 || thisNodeID) {
-				RF24NetworkHeader header(meshAddr, EXTERNAL_DATA_TYPE);
+				RF24NetworkHeader header;
+				RF24NH_init(&header,meshAddr, EXTERNAL_DATA_TYPE);
 			    if(thisNodeID){ //If not the master node, send to master (00)
 				  header.to_node = 00;				
 				}
-			    ok = network.write(header, msgTx->message, msgTx->size);
+			    ok = RF24N_write_m(&network,&header, msgTx->message, msgTx->size);
 			  }else{
 				//printf("Could not find matching mesh nodeID for IP ending in %d\n",lastOctet);
 			  }

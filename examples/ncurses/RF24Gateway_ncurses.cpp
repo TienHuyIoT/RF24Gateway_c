@@ -47,7 +47,7 @@
 /******************************************************************/
 
 RF24 radio;
-RF24Network network(radio);
+RF24Network network;
 RF24Mesh mesh(radio,network);
 RF24Gateway gw(radio,network,mesh);
 
@@ -93,6 +93,8 @@ WINDOW * renewPad;
 int main() {	
   
   RF24_init(&radio,22,0);
+  RF24N_init(&network,&radio);
+
   gw.begin();
   mesh.setStaticAddress(8,1);
   
@@ -162,9 +164,9 @@ bool ok = true;
   
   /** Read RF24Network Payloads (Do nothing with them currently) **/
   /*******************************/
-	if( network.available() ){
+	if( RF24N_available(&network) ){
 	  RF24NetworkHeader header;
-	  size_t size = network.peek(header);
+	  size_t size = RF24N_peek(&network,&header);
 	  uint8_t buf[size];
 
          if(header.type == 1){
@@ -179,11 +181,12 @@ bool ok = true;
 
           myTime.hr = tm->tm_hour;
           myTime.min = tm->tm_min;
-         RF24NetworkHeader hdr(header.from_node,1); 
-         network.write(hdr,&myTime,sizeof(myTime));
+         RF24NetworkHeader hdr;
+	 RF24NH_init(&hdr,header.from_node,1); 
+         RF24N_write_m(&network,&hdr,&myTime,sizeof(myTime));
 
    	}
-          network.read(header,&buf,size);
+          RF24N_read(&network,&header,&buf,size);
 	}
 
   }
