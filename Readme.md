@@ -1,3 +1,4 @@
+This is a c compatible version (without classes) of original c++ lib, use with https://github.com/lcgamboa/RF24_c , https://github.com/lcgamboa/RF24Network_c and https://github.com/lcgamboa/RF24Mesh_c
 
 **RF24Gateway**
 
