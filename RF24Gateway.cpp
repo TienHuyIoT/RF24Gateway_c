@@ -54,14 +54,14 @@ bool RF24Gateway::begin(bool configTUN, bool meshEnable, uint16_t address, uint8
 	  }
 	
 	  if(!thisNodeAddress && !mesh_nodeID){	  
-	     mesh.setNodeID(0);
+	     RF24M_setNodeID(&mesh,0);
 	  }else{
 		if(!mesh_nodeID){
 			mesh_nodeID = 253;
 		}
-		mesh.setNodeID(mesh_nodeID); //Try not to conflict with any low-numbered node-ids
+		RF24M_setNodeID(&mesh, mesh_nodeID); //Try not to conflict with any low-numbered node-ids
 	  }
-	  mesh.begin(channel,data_rate);
+	  RF24M_begin(&mesh, channel,data_rate);
 	  thisNodeAddress = mesh.mesh_address;
 	}else{
 	  RF24_begin(&radio);
@@ -275,9 +275,9 @@ void RF24Gateway::poll(uint32_t waitDelay){
 void RF24Gateway::handleRadioIn(){
     
     if(mesh_enabled){
-      while(mesh.update());
+      while(RF24M_update(&mesh));
         if(!thisNodeAddress){
-            mesh.DHCP();
+            RF24M_DHCP(&mesh);
     }
     }else{
         while(RF24N_update(&network));
@@ -389,7 +389,7 @@ void RF24Gateway::handleRadioOut(){
 			   uint8_t lastOctet = tmp[19];
 			   uint16_t meshAddr;
 
-			  if ( (meshAddr = mesh.getAddress(lastOctet)) > 0 || thisNodeID) {
+			  if ( (meshAddr = RF24M_getAddress(&mesh,lastOctet)) > 0 || thisNodeID) {
 				RF24NetworkHeader header;
 				RF24NH_init(&header,meshAddr, EXTERNAL_DATA_TYPE);
 			    if(thisNodeID){ //If not the master node, send to master (00)
