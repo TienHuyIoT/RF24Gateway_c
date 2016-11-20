@@ -146,14 +146,14 @@ bool ok = true;
 	* RF24Network user payloads are loaded into the user cache		
 	*/
 
-  if(millis()-mesh_timer > 30000 && RF24M_getNodeID(&mesh)){ //Every 30 seconds, test mesh connectivity
+  if(millis()-mesh_timer > 30000 && RF24M_getNodeID(&mesh,MESH_BLANK_ID)){ //Every 30 seconds, test mesh connectivity
     mesh_timer = millis();
     if( ! RF24M_checkConnection(&mesh) ){
         wclear(renewPad);
         mvwprintw(renewPad,0,0,"*Renewing Address*");
         prefresh(renewPad,0,0, 3,26, 4, 55);
         RF24_maskIRQ(&radio,1,1,1); //Use polling only for address renewal       
-        if( (ok = RF24M_renewAddress(&mesh)) ){
+        if( (ok = RF24M_renewAddress(&mesh,MESH_RENEWAL_TIMEOUT)) ){
             wclear(renewPad);
             prefresh(renewPad,0,0, 3,26, 3, 55);
         }
@@ -460,7 +460,7 @@ void drawRF24Pad(){
   
    wclear(rf24Pad);
    mvwprintw(rf24Pad,1,0,"Address: 0%o\n",mesh.mesh_address);
-   wprintw(rf24Pad,"nodeID: %d\n",RF24M_getNodeID(&mesh));
+   wprintw(rf24Pad,"nodeID: %d\n",RF24M_getNodeID(&mesh,MESH_BLANK_ID));
    wprintw(rf24Pad,"En Mesh: %s\n", gw.meshEnabled() ? "True" : "False");
    int dr = RF24_getDataRate(&radio);
    wprintw(rf24Pad,"Data-Rate: %s\n", dr == 0 ? "1MBPS" : dr == 1 ? "2MBPS" : dr == 2 ? "250KBPS" : "ERROR" ); 

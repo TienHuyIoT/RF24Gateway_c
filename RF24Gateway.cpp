@@ -61,7 +61,7 @@ bool RF24Gateway::begin(bool configTUN, bool meshEnable, uint16_t address, uint8
 		}
 		RF24M_setNodeID(&mesh, mesh_nodeID); //Try not to conflict with any low-numbered node-ids
 	  }
-	  RF24M_begin(&mesh, channel,data_rate);
+	  RF24M_begin(&mesh, channel,data_rate,MESH_RENEWAL_TIMEOUT);
 	  thisNodeAddress = mesh.mesh_address;
 	}else{
 	  RF24_begin(&radio);
@@ -284,8 +284,8 @@ void RF24Gateway::handleRadioIn(){
     }
        
     RF24NetworkFrame f;
-		while(network.external_queue.size() > 0 ){
-			f = network.external_queue.front();
+		while(qsize(network.external_queue,&network.external_queue_c) > 0 ){
+			f = qfront(network.external_queue,&network.external_queue_c);
 
             msgStruct msg;
 
@@ -314,7 +314,7 @@ void RF24Gateway::handleRadioIn(){
             } else {
                 //std::cerr << "Radio: Error reading data from RF24_ Read '" << bytesRead << "' Bytes." << std::endl;
             }
-			network.external_queue.pop();
+			qpop(network.external_queue,&network.external_queue_c);
 			
         }
 }
@@ -324,7 +324,7 @@ void RF24Gateway::handleRadioOut(){
 
 		bool ok = 0;
 		
-        while(!txQueue.empty() && network.external_queue.size() == 0) {
+        while(!txQueue.empty() && qsize(network.external_queue,&network.external_queue_c) == 0) {
 			
             
             msgStruct *msgTx = &txQueue.front();

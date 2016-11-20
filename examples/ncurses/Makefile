@@ -28,7 +28,8 @@ CCFLAGS=-std=c++0x
 
 ifeq "$(RPI)" "1"
 # The recommended compiler flags for the Raspberry Pi
-CCFLAGS+=-Ofast -mfpu=vfp -mfloat-abi=hard -march=$(ARCH) -mtune=arm1176jzf-s
+#CCFLAGS+=-Ofast -mfpu=vfp -mfloat-abi=hard -march=$(ARCH) -mtune=arm1176jzf-s
+CCFLAGS+=-ggdb -mfpu=vfp -mfloat-abi=hard -march=$(ARCH) -mtune=arm1176jzf-s
 endif
 
 # define all programs
