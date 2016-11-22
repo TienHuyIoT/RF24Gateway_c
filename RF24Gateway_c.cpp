@@ -1,8 +1,8 @@
 
 
 
-#include "RF24Gateway.h"
-#include "RF24Mesh/RF24Mesh_config.h"
+#include "RF24Gateway_c.h"
+#include "RF24Mesh_c/RF24Mesh_c_config.h"
 
 /***************************************************************************************/
 
@@ -276,8 +276,8 @@ void RF24Gateway::handleRadioIn(){
     
     if(mesh_enabled){
       while(RF24M_update(&mesh));
-        if(!thisNodeAddress){
-            RF24M_DHCP(&mesh);
+      if(!thisNodeAddress){
+          RF24M_DHCP(&mesh);
     }
     }else{
         while(RF24N_update(&network));

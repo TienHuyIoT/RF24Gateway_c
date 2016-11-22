@@ -19,10 +19,10 @@
 *
 */
 
-#include <RF24/RF24.h>
-#include <RF24Network/RF24Network.h>
-#include <RF24Mesh/RF24Mesh.h>  
-#include <RF24Gateway/RF24Gateway.h>
+#include <RF24_c/RF24_c.h>
+#include <RF24Network_c/RF24Network_c.h>
+#include <RF24Mesh_c/RF24Mesh_c.h>  
+#include <RF24Gateway_c/RF24Gateway_c.h>
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
