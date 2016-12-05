@@ -46,10 +46,7 @@
 
 /******************************************************************/
 
-RF24 radio;
-RF24Network network;
-RF24Mesh mesh;
-RF24Gateway gw(radio,network,mesh);
+RF24Gateway gw;
 
 /******************************************************************/
 
@@ -92,12 +89,12 @@ WINDOW * renewPad;
 
 int main() {	
   
-  RF24_init(&radio,22,0);
-  RF24N_init(&network,&radio);
-  RF24M_init(&mesh,&radio,&network);
+  RF24_init(22,0);
+  RF24N_init();
+  RF24M_init();
 
   gw.begin();
-  RF24M_setStaticAddress(&mesh,8,1);
+  RF24M_setStaticAddress(8,1);
   
   //uint8_t nodeID = 22;
   //gw.begin(nodeID,3,RF24_2MBPS);
@@ -146,18 +143,18 @@ bool ok = true;
 	* RF24Network user payloads are loaded into the user cache		
 	*/
 
-  if(millis()-mesh_timer > 30000 && RF24M_getNodeID(&mesh,MESH_BLANK_ID)){ //Every 30 seconds, test mesh connectivity
+  if(millis()-mesh_timer > 30000 && RF24M_getNodeID(MESH_BLANK_ID)){ //Every 30 seconds, test mesh connectivity
     mesh_timer = millis();
-    if( ! RF24M_checkConnection(&mesh) ){
+    if( ! RF24M_checkConnection() ){
         wclear(renewPad);
         mvwprintw(renewPad,0,0,"*Renewing Address*");
         prefresh(renewPad,0,0, 3,26, 4, 55);
-        RF24_maskIRQ(&radio,1,1,1); //Use polling only for address renewal       
-        if( (ok = RF24M_renewAddress(&mesh,MESH_RENEWAL_TIMEOUT)) ){
+        RF24_maskIRQ(1,1,1); //Use polling only for address renewal       
+        if( (ok = RF24M_renewAddress(MESH_RENEWAL_TIMEOUT)) ){
             wclear(renewPad);
             prefresh(renewPad,0,0, 3,26, 3, 55);
         }
-        RF24_maskIRQ(&radio,1,1,0);
+        RF24_maskIRQ(1,1,0);
      }
   } 
   if(ok){
@@ -165,9 +162,9 @@ bool ok = true;
   
   /** Read RF24Network Payloads (Do nothing with them currently) **/
   /*******************************/
-	if( RF24N_available(&network) ){
+	if( RF24N_available() ){
 	  RF24NetworkHeader header;
-	  size_t size = RF24N_peek(&network,&header);
+	  size_t size = RF24N_peek(&header);
 	  uint8_t buf[size];
 
          if(header.type == 1){
@@ -184,10 +181,10 @@ bool ok = true;
           myTime.min = tm->tm_min;
          RF24NetworkHeader hdr;
 	 RF24NH_init(&hdr,header.from_node,1); 
-         RF24N_write_m(&network,&hdr,&myTime,sizeof(myTime));
+         RF24N_write_m(&hdr,&myTime,sizeof(myTime));
 
    	}
-          RF24N_read(&network,&header,&buf,size);
+          RF24N_read(&header,&buf,size);
 	}
 
   }
@@ -436,8 +433,8 @@ void drawMeshPad(){
 	 
      meshInfoTimer = millis();
 	 //uint8_t pos=5;
-     for(int i=0; i<mesh.addrListTop; i++){
-	   mvwprintw(meshPad,i+1,0," Address: 0%o ID: %d \n",mesh.addrList[i].address,mesh.addrList[i].nodeID);
+     for(int i=0; i< RF24M_getAddrListTop(); i++){
+	   mvwprintw(meshPad,i+1,0," Address: 0%o ID: %d \n",RF24M_getAddrList()[i].address,RF24M_getAddrList()[i].nodeID);
 	 }
 
 	 if(padSelection == 0){
@@ -459,12 +456,12 @@ void drawMeshPad(){
 void drawRF24Pad(){
   
    wclear(rf24Pad);
-   mvwprintw(rf24Pad,1,0,"Address: 0%o\n",mesh.mesh_address);
-   wprintw(rf24Pad,"nodeID: %d\n",RF24M_getNodeID(&mesh,MESH_BLANK_ID));
+   mvwprintw(rf24Pad,1,0,"Address: 0%o\n", RF24M_getCurrentAddress());
+   wprintw(rf24Pad,"nodeID: %d\n",RF24M_getNodeID(MESH_BLANK_ID));
    wprintw(rf24Pad,"En Mesh: %s\n", gw.meshEnabled() ? "True" : "False");
-   int dr = RF24_getDataRate(&radio);
+   int dr = RF24_getDataRate();
    wprintw(rf24Pad,"Data-Rate: %s\n", dr == 0 ? "1MBPS" : dr == 1 ? "2MBPS" : dr == 2 ? "250KBPS" : "ERROR" ); 
-   int pa = RF24_getPALevel(&radio);
+   int pa = RF24_getPALevel();
    wprintw(rf24Pad,"PA Level: %s\n", pa == 0 ? "MIN" : pa == 1 ? "LOW" : pa == 2 ? "HIGH" : pa == 3 ? "MAX" : "ERROR" );
    wprintw(rf24Pad,"IF Type: %s\n", gw.config_TUN == 1 ? "TUN" : "TAP" );
    wprintw(rf24Pad,"IF Drops: %u\n", gw.ifDropped() );

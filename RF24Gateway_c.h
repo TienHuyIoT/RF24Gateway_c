@@ -73,7 +73,7 @@ public:
   /**
    * RF24Gateway constructor.
    */
-  RF24Gateway(RF24& _radio,RF24Network& _network, RF24Mesh& _mesh);
+  RF24Gateway();
   
   /**
    * Begin function for use with RF24Mesh (TUN interface)
@@ -147,9 +147,6 @@ public:
   void sendUDP(uint8_t nodeID,RF24NetworkFrame frame);
   
 private:
-  RF24& radio;
-  RF24Network& network;
-  RF24Mesh& mesh;
   
   bool begin(bool configTUN, bool meshEnable, uint16_t address, uint8_t mesh_nodeID, rf24_datarate_e data_rate, uint8_t _channel);
   bool mesh_enabled;
