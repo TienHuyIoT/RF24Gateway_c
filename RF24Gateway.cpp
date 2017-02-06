@@ -17,8 +17,8 @@
 */
 
 
-#include "RF24Gateway_c.h"
-#include "RF24Mesh_c/RF24Mesh_c_config.h"
+#include "RF24Gateway.h"
+#include "RF24Mesh/RF24Mesh_config.h"
 
 /***************************************************************************************/
 
@@ -298,7 +298,7 @@ void RF24Gateway::handleRadioIn(){
         while(RF24N_update());
     }
        
-    RF24NetworkFrame f;
+    RF24NetworkFrame_ f;
 		while(qsize(RF24N_getExternalQueue(),RF24N_getExternalQueue_c()) > 0 ){
 			f = qfront(RF24N_getExternalQueue(),RF24N_getExternalQueue_c());
 
@@ -559,7 +559,7 @@ void RF24Gateway::setupSocket(){
 
 /***************************************************************************************/
 
-void RF24Gateway::sendUDP(uint8_t nodeID,RF24NetworkFrame frame){
+void RF24Gateway::sendUDP(uint8_t nodeID,RF24NetworkFrame_ frame){
     
   uint8_t buffer[MAX_PAYLOAD_SIZE+11];
   

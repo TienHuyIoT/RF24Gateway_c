@@ -43,8 +43,8 @@
   #include <queue>
   
   #include <RF24/RF24.h>
-  #include <RF24Network_c/RF24Network_c.h>
-  #include <RF24Mesh_c/RF24Mesh_c.h>
+  #include <RF24Network/RF24Network.h>
+  #include <RF24Mesh/RF24Mesh.h>
   
 #ifndef IFF_MULTI_QUEUE
 	#define IFF_MULTI_QUEUE 0x0100
@@ -144,7 +144,7 @@ public:
   }
   
   int s;  //Socket variable for sending UDP
-  void sendUDP(uint8_t nodeID,RF24NetworkFrame frame);
+  void sendUDP(uint8_t nodeID,RF24NetworkFrame_ frame);
   
 private:
   
