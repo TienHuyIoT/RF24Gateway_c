@@ -9,7 +9,8 @@
 RF24 radio(22,0);
 RF24Network network(radio);
 RF24Mesh mesh(radio,network);
-RF24Gateway gw(radio,network,mesh);
+//RF24Gateway gw(radio,network,mesh);
+RF24Gateway gw;
 
 uint32_t mesh_timer = 0;
 
